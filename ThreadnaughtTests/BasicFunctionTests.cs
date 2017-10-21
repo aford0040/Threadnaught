@@ -146,6 +146,94 @@ namespace ThreadnaughtTests
 
         #endregion
 
+        #region Test 4 (Waiting For Tasks)
+
+        /// <summary>
+        /// Tests waiting for a task as well as tests the
+        /// task starting functionality of WaitForTask IF it hasnt started already
+        /// </summary>
+        [TestMethod]
+        [TestCategory("Wait For Tasks")]
+        public void TestWait()
+        {
+            // create the task handler
+            Threadnaught handler = new Threadnaught(false); // false to check the auto start on the wait
+
+            // setup some new tasks
+            List<Task> newTasks = new List<Task>()
+            {
+                new Task(() => TimeWaster(1)),
+                new Task(() => TimeWaster(2)),
+                new Task(() => TimeWaster(3)),
+                new Task(() => TimeWaster(4)),
+                new Task(() => TimeWaster(5)),
+                new Task(() => TimeWaster(6)),
+                new Task(() => TimeWaster(7)),
+                new Task(() => TimeWaster(8)),
+                new Task(() => TimeWaster(9)),
+                new Task(() => TimeWaster(0)),
+
+            };
+
+            // setup a list to get the task keys
+            List<int> taskKeys = new List<int>();
+
+            // add the tasks to the handler
+            newTasks.ForEach(m => taskKeys.Add(handler.AddTask(m)));
+
+            // pick a task to run
+            int taskToRun = PickRandomTaskKey(taskKeys);
+
+            handler.WaitForTask(taskToRun);
+
+            Assert.AreEqual(handler.GetTask(taskToRun).Status, TaskStatus.RanToCompletion);
+            taskKeys.Where(m => m != taskToRun).ToList().ForEach(m => Assert.AreEqual(handler.GetTask(m).Status, TaskStatus.Created));
+        }
+
+        /// <summary>
+        /// Tests waiting for multiple tasks as well as tests the
+        /// task starting functionality of wait for task IF it hasnt started already
+        /// </summary>
+        [TestMethod]
+        [TestCategory("Wait For Tasks")]
+        public void TestWaitMultiple()
+        {
+            // create the task handler
+            Threadnaught handler = new Threadnaught(false); // false to check the auto start on the wait
+
+            // setup some new tasks
+            List<Task> newTasks = new List<Task>()
+            {
+                new Task(() => TimeWaster(1)),
+                new Task(() => TimeWaster(2)),
+                new Task(() => TimeWaster(3)),
+                new Task(() => TimeWaster(4)),
+                new Task(() => TimeWaster(5)),
+                new Task(() => TimeWaster(6)),
+                new Task(() => TimeWaster(7)),
+                new Task(() => TimeWaster(8)),
+                new Task(() => TimeWaster(9)),
+                new Task(() => TimeWaster(0)),
+            };
+
+            // setup a list to get the task keys
+            List<int> taskKeys = new List<int>();
+
+            // add the tasks to the handler
+            newTasks.ForEach(m => taskKeys.Add(handler.AddTask(m)));
+
+            // get the keys we want to run
+            List<int> tasksToRun = PickRandomTaskKeys(taskKeys, 4);
+
+            // wait for the tasks
+            handler.WaitForTasks(tasksToRun);
+
+            // make sure the tasks are run to completion
+            tasksToRun.ForEach(m => Assert.AreEqual(handler.GetTask(m).Status, TaskStatus.RanToCompletion));
+
+        }
+        #endregion
+
         #region Multiple Test Used Functions
         /// <summary>
         ///  Used on multiple tests currently
@@ -155,8 +243,47 @@ namespace ThreadnaughtTests
         {
             Console.WriteLine($"Starting time waster using {tracker}");
             for (int I = 0; I < int.MaxValue / 2; I++)
-                if (I % 1000 == 0)
+                if (I % 5000000 == 0)
                     Console.WriteLine($"We hit a landmark for {tracker}");
+        }
+
+        /// <summary>
+        /// Picks a single task key
+        /// </summary>
+        /// <param name="taskList">The list of tasks to choose from</param>
+        /// <returns></returns>
+        private int PickRandomTaskKey(List<int> taskKeys) =>
+            new Random().Next(0, taskKeys.Count);
+
+        /// <summary>
+        /// Picks a random number of task keys
+        /// </summary>
+        /// <param name="taskList">The list of tasks to choose from</param>
+        /// <param name="numberOfKeys">the number of keys to pick</param>
+        /// <returns></returns>
+        private List<int> PickRandomTaskKeys(List<int> taskList, int numberOfKeys = 4)
+        {
+            // creat the return value
+            List<int> taskKeys = new List<int>();
+
+            // pick the number of keys you wish
+            for (int I = 0; I < numberOfKeys; I++)
+            {
+                // create a random to pick indexes from task list
+                Random randoInt = new Random();
+                int randomIndex = randoInt.Next(0, taskList.Count);
+
+                // while the tsk keys dont contain the randomly picked key, keep picking random indexes
+                while (taskKeys.Contains(randomIndex))
+                    randomIndex = randoInt.Next(0, taskList.Count);
+
+                // add it
+                taskKeys.Add(randomIndex);
+            }
+
+            // of course....return
+            return taskKeys;
+
         }
         #endregion
     }

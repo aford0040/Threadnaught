@@ -43,6 +43,7 @@ namespace ThreadnaughtTaskHandler
 
         #region Public Methods
 
+        #region Add Tasks
         /// <summary>
         /// Adds a new task to the list of tasks and begins execution if beginning the task on add
         /// </summary>
@@ -71,13 +72,18 @@ namespace ThreadnaughtTaskHandler
             // return the last key
             return TaskQueue.Last().Key;
         }
+        #endregion
 
+        #region Start Task
         /// <summary>
         /// Starts a task with the given key
         /// </summary>
         /// <param name="key">The key to begin</param>
         public void StartTask(int key) =>
             ExecuteTask(key);
+        #endregion
+
+        #region Task Gets
 
         /// <summary>
         /// Returns a given task
@@ -99,14 +105,36 @@ namespace ThreadnaughtTaskHandler
             return ((Task<T>)GetTask(key)).Result;
         }
 
+        #endregion
 
+
+        #region Task Waiting
 
         /// <summary>
         /// Waits for a task with a specific key
         /// </summary>
         /// <param name="key">They key of the needed task</param>
-        public void WaitForTask(int key) =>
+        public void WaitForTask(int key)
+        {
+            // make sure the task is running
+            if (TaskQueue[key].Status == TaskStatus.Created)
+                TaskQueue[key].Start();
+
+            // wait for it......
             TaskQueue[key].Wait();
+        }
+        /// <summary>
+        /// Waits for all tasks to complete with the given key
+        /// </summary>
+        /// <param name="keys">The keys of the tasks to wait for</param>
+        public void WaitForTasks(IEnumerable<int> keys)
+        {
+            
+            // run our own home brewed wait for task because if the task hasnt started and you sit
+            // in a Task.WaitAll(), you'll sit there forever. Bad news
+            keys.ToList().ForEach(m => WaitForTask(m));
+        }
+        #endregion
 
         #endregion
 
