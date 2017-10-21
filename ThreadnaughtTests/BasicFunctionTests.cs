@@ -17,6 +17,7 @@ namespace ThreadnaughtTests
         /// Tests adding a task to the threadnaught
         /// </summary>
         [TestMethod]
+        [TestCategory("Add")]
         public void TestAdd()
         {
             Threadnaught handler = new Threadnaught();
@@ -52,6 +53,7 @@ namespace ThreadnaughtTests
         /// Tests the auto execute functionality of threadnaught
         /// </summary>
         [TestMethod]
+        [TestCategory("Auto Execute")]
         public void TextAutoExecute()
         {
             Threadnaught handler = new Threadnaught(false);
@@ -83,18 +85,37 @@ namespace ThreadnaughtTests
 
         #region Test 3 (Retrieving Task value)
         /// <summary>
-        /// Tests adding a task to the threadnaught
+        /// Tests retrieving a value from the threadnaught
         /// </summary>
         [TestMethod]
-        public void TestValueRetrieve()
+        [TestCategory("Value Retrieval")]
+        public void TestValueRetrieveInt()
         {
             // setup handler and add task
             Threadnaught handler = new Threadnaught();
+            int taskNumber = 1;
 
-            int task1 = handler.AddTask(new Task<int>(() => WasteTimeValue(1)));
+            int task1 = handler.AddTask(new Task<int>(() => WasteTimeInt(taskNumber)));
 
             // get the value
-            handler.GetTaskValue<int>(task1);
+            Assert.AreEqual(handler.GetTaskValue<int>(task1), taskNumber);
+        }
+
+        /// <summary>
+        /// Tests retrieving a value from the threadnaught
+        /// </summary>
+        [TestMethod]
+        [TestCategory("Value Retrieval")]
+        public void TestValueRetrieveString()
+        {
+            // setup handler and add task
+            Threadnaught handler = new Threadnaught();
+            string taskString = "blah blah blah";
+
+            int task1 = handler.AddTask(new Task<string>(() => WasteTimeString(1, taskString)));
+
+            // get the value
+            Assert.AreEqual(handler.GetTaskValue<string>(task1), taskString);
 
         }
 
@@ -103,12 +124,26 @@ namespace ThreadnaughtTests
         /// </summary>
         /// <param name="tracker">The number to keep track of</param>
         /// <returns>Tracker number</returns>
-        public int WasteTimeValue(int tracker)
+        public int WasteTimeInt(int tracker)
         {
             TimeWaster(tracker);
 
             return tracker;
         }
+
+        /// <summary>
+        /// Wastes time and writes crap to the console.
+        /// </summary>
+        /// <param name="tracker">The number to keep track of</param>
+        /// <param name="testString">The string to return</param>
+        /// <returns>Tracker number</returns>
+        public string WasteTimeString(int tracker, string testString)
+        {
+            TimeWaster(tracker);
+
+            return testString;
+        }
+
         #endregion
 
         #region Multiple Test Used Functions
