@@ -261,7 +261,7 @@ namespace ThreadnaughtTests
         #region Test 6 (Throttling)
 
         /// <summary>
-        /// Tests throttling. Not sure how to write the 
+        /// Tests throttling. Not sure how to write the success condition
         /// </summary>
         [TestMethod]
         [TestCategory("Throttling")]
