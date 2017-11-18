@@ -11,6 +11,37 @@ namespace ThreadnaughtTests
     [TestClass]
     public class BasicFunctionTests
     {
+        #region Common Properties
+        /// <summary>
+        /// A list of tasks to use
+        /// </summary>
+        List<Task> newTasks = new List<Task>();
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Basic constructor that sets up the new tasks property
+        /// </summary>
+        public BasicFunctionTests()
+        {
+            newTasks = new List<Task>()
+            {
+                new Task(() => TimeWaster(1)),
+                new Task(() => TimeWaster(2)),
+                new Task(() => TimeWaster(3)),
+                new Task(() => TimeWaster(4)),
+                new Task(() => TimeWaster(5)),
+                new Task(() => TimeWaster(6)),
+                new Task(() => TimeWaster(7)),
+                new Task(() => TimeWaster(8)),
+                new Task(() => TimeWaster(9)),
+                new Task(() => TimeWaster(0)),
+
+            };
+        }
+        #endregion
+
+
         #region Test 1 (Adding)
 
         /// <summary>
@@ -159,22 +190,6 @@ namespace ThreadnaughtTests
             // create the task handler
             Threadnaught handler = new Threadnaught(false); // false to check the auto start on the wait
 
-            // setup some new tasks
-            List<Task> newTasks = new List<Task>()
-            {
-                new Task(() => TimeWaster(1)),
-                new Task(() => TimeWaster(2)),
-                new Task(() => TimeWaster(3)),
-                new Task(() => TimeWaster(4)),
-                new Task(() => TimeWaster(5)),
-                new Task(() => TimeWaster(6)),
-                new Task(() => TimeWaster(7)),
-                new Task(() => TimeWaster(8)),
-                new Task(() => TimeWaster(9)),
-                new Task(() => TimeWaster(0)),
-
-            };
-
             // setup a list to get the task keys
             List<int> taskKeys = new List<int>();
 
@@ -201,21 +216,6 @@ namespace ThreadnaughtTests
             // create the task handler
             Threadnaught handler = new Threadnaught(false); // false to check the auto start on the wait
 
-            // setup some new tasks
-            List<Task> newTasks = new List<Task>()
-            {
-                new Task(() => TimeWaster(1)),
-                new Task(() => TimeWaster(2)),
-                new Task(() => TimeWaster(3)),
-                new Task(() => TimeWaster(4)),
-                new Task(() => TimeWaster(5)),
-                new Task(() => TimeWaster(6)),
-                new Task(() => TimeWaster(7)),
-                new Task(() => TimeWaster(8)),
-                new Task(() => TimeWaster(9)),
-                new Task(() => TimeWaster(0)),
-            };
-
             // setup a list to get the task keys
             List<int> taskKeys = new List<int>();
 
@@ -235,8 +235,52 @@ namespace ThreadnaughtTests
         #endregion
 
         #region Test 5 (Memory Management)
+        [TestMethod]
+        [TestCategory("Memory Management")]
+        public void TestTaskRemoval()
+        {
+            // setup a task handler
+            Threadnaught handler = new Threadnaught(true);
+
+            // add tasks
+            List<int> taskKeys = new List<int>();
+            newTasks.ForEach(m => taskKeys.Add(handler.AddTask(m)));
+
+            // pick some tasks to run
+            List<int> tasksToRun = PickRandomTaskKeys(taskKeys, 6);
+
+            // wait for them then tell the tester to check for those keys
+            handler.WaitForTasks(tasksToRun, true);
+
+            // if any of the keys exist, it should fail
+            if (handler.TaskQueue.Keys.Where(m => tasksToRun.Any(x => x == m)).Count() > 0)
+                Assert.Fail();
+        }
+        #endregion
+
+        #region Test 6 (Throttling)
+
+        /// <summary>
+        /// Tests throttling. Not sure how to write the 
+        /// </summary>
+        [TestMethod]
+        [TestCategory("Throttling")]
+        public void TestTaskThrottling()
+        {
+            // setup a task handler
+            Threadnaught handler = new Threadnaught(3);
+
+            // add tasks
+            List<int> taskKeys = new List<int>();
+            newTasks.ForEach(m => taskKeys.Add(handler.AddTask(m, false)));
+
+            // wait for them then tell the tester to check for those keys
+            handler.WaitForTasks(taskKeys, true);
+
+        }
 
         #endregion
+
 
         #region Multiple Test Used Functions
         /// <summary>
